@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use POSIX qw (tzset);
+use Data::Dumper;
+
+sub IsLeapYear {
+    my $year= $_[0];
+    if ($year%4 !=0) {
+        return 0;
+    } elsif ($year%100 != 0) {
+        return 1;
+    } elsif (($year+1900)%400 == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+sub MonLen {
+    my $year= $_[0];
+    my $mon=  $_[1];
+    my @ml = ([31,28,31,30,31,30,31,31,30,31,30,31],
+              [31,29,31,30,31,30,31,31,30,31,30,31]);
+
+    return $ml[IsLeapYear($year)][$mon];
+}
+
+sub DaysInYearBeforeMonth {
+    my $year= $_[0];
+    my $mon=  $_[1];
+    my @ml = ([0,31,59,90,120,151,181,212,243,273,304,334,365],
+              [0,31,60,91,121,152,182,213,244,274,305,335,366]);
+
+    return $ml[IsLeapYear($year)][$mon];
+}
+
+# days before this date
+sub DaysBeforeDate {
+    my $year= $_[0];
+    my $mon=  $_[1];
+    my $mday= $_[2];
+
+    my $y = $year + 1900 - 1601; # should be non-negative
+
+#   printf "DaysBeforeDate(%d,%d,%d) debug %d,%d\n",
+#       $year, $mon, $mday, $y, $y*365;
+    return $y*365
+           + int ($y/4) 
+           - int ($y/100)
+           + int ($y/400)
+           + DaysInYearBeforeMonth ($year, $mon)
+           + ($mday-1);
+}
+
+sub InternalToYMD {
+    my $int= $_[0];
+    my $year= int ($int/365) + 1601 - 1900;
+
+#    printf STDERR "InternalToYMD-61 from=%s\n", $int;
+
+    my $test1= DaysBeforeDate ($year,  0,  1);
+    my $test2= DaysBeforeDate ($year, 11, 31);
+    while ($int < $test1) {
+        --$year;
+        $test1= DaysBeforeDate ($year,  0,  1);
+        $test2= DaysBeforeDate ($year, 11, 31);
+    }
+    while ($int > $test2) {
+        ++$year;
+        $test1= DaysBeforeDate ($year,  0,  1);
+        $test2= DaysBeforeDate ($year, 11, 31);
+    }
+    my $yday= $int - $test1;
+#    printf STDERR "InternalToYMD-76 int=%s year=%s yday=%s\n",$int,$year,$yday;
+
+    my $mon= int ($yday / 31);
+#    printf STDERR "InternalToYMD year=%d yday=%d mon=%d\n",$year,$yday,$mon;
+    $test1= DaysInYearBeforeMonth ($year, $mon);
+    $test2= DaysInYearBeforeMonth ($year, $mon+1);
+#    printf STDERR "InternalToYMD yday=%s mon=%s test1=%s test2=%s\n",$yday,$mon,$test1,$test2;
+#    print STDERR Dumper ($yday);
+#    print STDERR Dumper ($test1);
+    while ($yday < $test1) {
+        --$mon;
+#   #    printf STDERR "InternalToYMD yday=%d mon=%d test1=%d test2=%d\n",$yday,$mon,$test1,$test2;
+        $test1= DaysInYearBeforeMonth ($year, $mon);
+        $test2= DaysInYearBeforeMonth ($year, $mon+1);
+    }
+    while ($yday >= $test2) {
+        ++$mon;
+        $test1= DaysInYearBeforeMonth ($year, $mon);
+        $test2= DaysInYearBeforeMonth ($year, $mon+1);
+    }
+    my $mday= $yday - $test1 + 1;
+    return ($year, $mon, $mday);
+}
+
+sub DoSet {
+    my $par= $_[0];
+#   printf "set\"%s\"\n", $par;
+    if (length ($par) != 8 || $par !~ /^\d+$/) {
+        exit 2;
+    }
+    my $year= substr ($par, 0, 4) - 1900;
+    my $mon=  substr ($par, 4, 2) - 1;
+    my $mday= substr ($par, 6, 2) - 0;
+
+    if (($year<-300 || $year>400) ||
+        ($mon < 0   || $mon >11) ||
+        ($mday< 1   || $mday>MonLen($year,$mon))) {
+        printf STDERR "DoSet Invalid params %04d-%02d-%02d\n", 1900+$year, 1+$mon, $mday;
+        exit 3;
+    }
+
+    my $int= DaysBeforeDate ($year, $mon, $mday);
+#   $wday= ($int+1)%7; # 0=Sunday
+#   printf STDERR "DoSet %04d-%02d-%02d => %s\n", 1900+$year, 1+$mon, $mday, $int;
+    return $int;
+}
+
+sub DoAddDays
+{
+    my $int= $_[0];
+    my $add= $_[1];
+    if ($add !~ /^[+-]?\d+$/) {
+        printf STDERR "DoAddDays: bad param %s\n", $add;
+        exit 2;
+    }
+
+#   printf STDERR "DoAddDays: %d->%d\n",$int,$int+$add;
+    $int += $add;
+
+    if ($int < 0 || $int >= 2922194) {
+        printf STDERR "DoAddDays: overflow\n", $add;
+        exit 2;
+    }
+
+    return $int;
+}
+
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+    localtime (time);
+# from now on, we only use $mday,$mon,$year,$wday,$yday
+my $int= DaysBeforeDate ($year, $mon, $mday);
+# $int: internal form: days since 1601.01.01:
+# eg 
+# 1601-01-01 =>      0, 1601-01-01 =>    365
+# 1700-02-27 =>  36216, 1700-02-28 =>  36217, 1700-03-01 =>  36218
+# 2000-02-28 => 145789, 2000-02-29 => 145790, 2000-03-01 => 145791
+# 2001-02-28 => 146155, 2001-03-01 => 146156
+
+my $ARGC= scalar (@ARGV);
+my $i;
+for ($i=0; $i<$ARGC; ++$i) {
+    if ($ARGV[$i] eq 'set') {
+        if ($i>=$ARGC-1) { next; }
+        $int= DoSet ($ARGV[++$i]);
+
+    } elsif ($ARGV[$i] eq 'add-days') {
+        if ($i>=$ARGC-1) { next; }
+        $int= DoAddDays ($int, $ARGV[++$i]);
+    }
+}
+
+($year,$mon,$mday)= InternalToYMD ($int);
+printf "%04d%02d%02d\n", 1900+$year, 1+$mon, $mday;
