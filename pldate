@@ -331,7 +331,9 @@ sub main {
         }
     }
 
-    if (! $fprint) {
+    if ($fprint) {
+        print "\n";
+    } else {
         ($year,$mon,$mday)= InternalToYMD ($int);
         printf "%04d%02d%02d\n", 1900+$year, 1+$mon, $mday;
     }

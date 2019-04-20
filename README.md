@@ -49,6 +49,13 @@
 
       Last day of the previous month
         ./pldate today set-mday 1 sub-days 1
-
+    
       First day of the next month
         ./pldate today set-mday -1 add-days 1
+    
+      The week containing the current date (eg 19681230-19690105)
+        ./pldate today \
+              add-days 1 \
+              prev-dow 1 \
+              printf %Y%m%d- \
+              next-dow 7 printf %Y%m%d
