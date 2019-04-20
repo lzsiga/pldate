@@ -140,29 +140,69 @@ sub DoAddDays
     return $int;
 }
 
-my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
-    localtime (time);
+sub DoNextDow {
+    my $int=   $_[0];
+    my $todow= $_[1];
+    my $dir=   $_[2];
+
+    if ($todow !~ /^\d$/ ||
+        ! ($todow>=0 && $todow<=7)) {
+        printf STDERR "DoNextDow: bad param %s\n", $todow;
+        exit 2;
+    }
+    if ($todow==7) { $todow= 0; } # both 0 and 7 mean Sunday
+    do {
+        $int += $dir;
+    } while (($int+1)%7 != $todow);
+    return $int;
+}
+
+sub main {
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        localtime (time);
 # from now on, we only use $mday,$mon,$year,$wday,$yday
-my $int= DaysBeforeDate ($year, $mon, $mday);
+    my $int= DaysBeforeDate ($year, $mon, $mday);
 # $int: internal form: days since 1601.01.01:
 # eg 
 # 1601-01-01 =>      0, 1601-01-01 =>    365
 # 1700-02-27 =>  36216, 1700-02-28 =>  36217, 1700-03-01 =>  36218
 # 2000-02-28 => 145789, 2000-02-29 => 145790, 2000-03-01 => 145791
 # 2001-02-28 => 146155, 2001-03-01 => 146156
+#
+# day of week ($int+1)%7 => 0..6 = Sun..Sat
 
-my $ARGC= scalar (@ARGV);
-my $i;
-for ($i=0; $i<$ARGC; ++$i) {
-    if ($ARGV[$i] eq 'set') {
-        if ($i>=$ARGC-1) { next; }
-        $int= DoSet ($ARGV[++$i]);
+    my $ARGC= scalar (@ARGV);
+    my $i;
+    for ($i=0; $i<$ARGC; ++$i) {
+        if ($ARGV[$i] eq 'today') {
+            $int= DaysBeforeDate ($year, $mon, $mday);
 
-    } elsif ($ARGV[$i] eq 'add-days') {
-        if ($i>=$ARGC-1) { next; }
-        $int= DoAddDays ($int, $ARGV[++$i]);
+        } elsif ($ARGV[$i] eq 'tomorrow') {
+            $int= DaysBeforeDate ($year, $mon, $mday) +1;
+
+        } elsif ($ARGV[$i] eq 'yesterday') {
+            $int= DaysBeforeDate ($year, $mon, $mday) -1;
+
+        } elsif ($ARGV[$i] eq 'set') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSet ($ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'add-days') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddDays ($int, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'next-dow') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoNextDow ($int, $ARGV[++$i], 1);
+
+        } elsif ($ARGV[$i] eq 'prev-dow') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoNextDow ($int, $ARGV[++$i], -1);
+        }
     }
+
+    ($year,$mon,$mday)= InternalToYMD ($int);
+    printf "%04d%02d%02d\n", 1900+$year, 1+$mon, $mday;
 }
 
-($year,$mon,$mday)= InternalToYMD ($int);
-printf "%04d%02d%02d\n", 1900+$year, 1+$mon, $mday;
+main ();
