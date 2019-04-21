@@ -81,6 +81,10 @@
     
       First day of the next month
         ./pldate today set-mday -1 add-days 1
+        ./pldate today add-month 1 set-mday 1
+
+      Last day of the next month
+        ./pldate today add-month 1 set-mday -1
     
       The week containing the current date (eg 19681230-19690105)
         ./pldate today \
@@ -88,6 +92,9 @@
               prev-dow 1 \
               printf %Y%m%d- \
               next-dow 7 printf %Y%m%d
+
+      Previous year as an interval (eg 20180101-20181231)
+        ./pldate today sub-year 1 set-yday 1 printf %Y%m%d- set-yday -1 print
 
       Days since a fixed day:
          expr "$(./pldate today printf %I)" - "$(./pldate set 20010209 printf %I)"
