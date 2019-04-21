@@ -25,8 +25,20 @@
       add-days N                 # add N days (it can be negative too)
       sub-days N                 # subtract N days (it can be negative too)
 
-      next-dow N                 # N=0..7: go to the next Nth day of week
-      prew-dow N                 # N=0..7: go to the previous Nth day of week
+      next-wday N                # N=0..7: go to the next Nth day of week
+      next-dow  N                # synonym of the previous
+
+      prev-wday N                # N=0..7: go to the previous Nth day of week
+      prev-dow  N                # synonym of the previous
+
+      upto-wday N                # N=0..7: go to the next Nth day of week
+                                 # but stay, if it is today
+                                 # _not_ equivalent with 'next-wday'
+      upto-dow  N                # synonym of the previous
+
+      downto-wday N              # N=0..7: go to the previous Nth day of week
+                                 # but stay, if it is today
+      downto-dow  N              # synonym of the previous
 
       set-mday N                 # N=1..31: go to Nth day of the month (or the last day)
                                  # N=0: same as N=1
@@ -45,12 +57,14 @@
     
       Today if it is Saturday, otherways the first Saturday after today:
         ./pldate yesterday next-dow 6
+        ./pldate today upto-dow 6
     
       Previous Saturday:
         ./pldate today prev-dow 6
     
       Today if it is Saturday, otherways the previous Saturday before today:
         ./pldate tomorrow prev-dow 6
+        ./pldate today downto-dow 6
 
       Last day of the previous month
         ./pldate today set-mday 1 sub-days 1

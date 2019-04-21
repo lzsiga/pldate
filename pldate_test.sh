@@ -76,6 +76,32 @@ TestPrevDow () {
     fi
 }
 
+TestUpToDow () {
+    From="$1"
+    Dow="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" upto-dow "$Dow")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s upto-dow %s => %s OK\n" "$From" "$Dow" "$To"
+    else
+        printf "set %s upto-dow %s => %s *** expected %s \n" "$From" "$Dow" "$To" "$Expect"
+        exit 9
+    fi
+}
+
+TestDownToDow () {
+    From="$1"
+    Dow="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" downto-dow "$Dow")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s downto-dow %s => %s OK\n" "$From" "$Dow" "$To"
+    else
+        printf "set %s downto-dow %s => %s *** expected %s \n" "$From" "$Dow" "$To" "$Expect"
+        exit 9
+    fi
+}
+
 TestSetMday () {
     From="$1"
     Mday="$2"
@@ -142,7 +168,7 @@ TestNextDow 20190420 2 20190423
 TestNextDow 20190420 3 20190424
 TestNextDow 20190420 4 20190425
 TestNextDow 20190420 5 20190426
-TestNextDow 20190420 6 20190427
+TestNextDow 20190420 6 20190427 # here 'next-dow' and 'upto-dow' differ
 TestNextDow 20190420 7 20190421
 
 TestPrevDow 20190420 0 20190414
@@ -151,8 +177,26 @@ TestPrevDow 20190420 2 20190416
 TestPrevDow 20190420 3 20190417
 TestPrevDow 20190420 4 20190418
 TestPrevDow 20190420 5 20190419
-TestPrevDow 20190420 6 20190413
+TestPrevDow 20190420 6 20190413 # here 'prev-dow' and 'downto-dow' differ
 TestPrevDow 20190420 7 20190414
+
+TestUpToDow 20190420 0 20190421
+TestUpToDow 20190420 1 20190422
+TestUpToDow 20190420 2 20190423
+TestUpToDow 20190420 3 20190424
+TestUpToDow 20190420 4 20190425
+TestUpToDow 20190420 5 20190426
+TestUpToDow 20190420 6 20190420 # here 'next-dow' and 'upto-dow' differ
+TestUpToDow 20190420 7 20190421
+
+TestDownToDow 20190420 0 20190414
+TestDownToDow 20190420 1 20190415
+TestDownToDow 20190420 2 20190416
+TestDownToDow 20190420 3 20190417
+TestDownToDow 20190420 4 20190418
+TestDownToDow 20190420 5 20190419
+TestDownToDow 20190420 6 20190420 # here 'prev-dow' and 'downto-dow' differ
+TestDownToDow 20190420 7 20190414
 
 TestSetMday 23000201 -31 23000201
 TestSetMday 23000201 -30 23000201

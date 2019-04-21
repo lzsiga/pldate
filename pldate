@@ -322,13 +322,25 @@ sub main {
             if ($i>=$ARGC-1) { next; }
             $int= DoAddDays ($int, -1, $ARGV[++$i]);
 
-        } elsif ($ARGV[$i] eq 'next-dow') {
+        } elsif ($ARGV[$i] eq 'next-dow' ||
+                 $ARGV[$i] eq 'next-wday') {
             if ($i>=$ARGC-1) { next; }
             $int= DoNextDow ($int, $ARGV[++$i], 1);
 
-        } elsif ($ARGV[$i] eq 'prev-dow') {
+        } elsif ($ARGV[$i] eq 'prev-dow' ||
+                 $ARGV[$i] eq 'prev-wday') {
             if ($i>=$ARGC-1) { next; }
             $int= DoNextDow ($int, $ARGV[++$i], -1);
+
+        } elsif ($ARGV[$i] eq 'upto-dow' ||
+                 $ARGV[$i] eq 'upto-wday') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoNextDow ($int-1, $ARGV[++$i], 1);
+
+        } elsif ($ARGV[$i] eq 'downto-dow' ||
+                 $ARGV[$i] eq 'downto-wday') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoNextDow ($int+1, $ARGV[++$i], -1);
 
         } elsif ($ARGV[$i] eq 'set-mday') {
             if ($i>=$ARGC-1) { next; }
