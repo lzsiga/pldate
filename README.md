@@ -22,8 +22,18 @@
       set YYYYMMDD               # go to the specifed day
       set-int N                  # the same with internal format (see above)
 
-      add-days N                 # add N days (it can be negative too)
-      sub-days N                 # subtract N days (it can be negative too)
+      add-day[s] N               # add N days (it can be negative too)
+      sub-day[s] N               # subtract N days (it can be negative too)
+
+      add-month[s] N             # add N months (it can be negative too)
+      sub-month[s] N             # subtract N months (it can be negative too)
+                                 # note: these two might change the day-of-month
+                                 # eg 2001-03-31 -1 month = 2001-02-28
+
+      add-year[s] N              # add N years (it can be negative too)
+      sub-year[s] N              # subtract N years (it can be negative too)
+                                 # note: these two might change the day-of-month
+                                 # eg 2004-02-29 -1 year = 2003-02-28
 
       next-wday N                # N=0..7: go to the next Nth day of week
       next-dow  N                # synonym of the previous

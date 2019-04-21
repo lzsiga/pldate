@@ -50,6 +50,58 @@ TestSubDays () {
     fi
 }
 
+TestAddMonth () {
+    From="$1"
+    Add="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" add-month "$Add")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s add-month %s => %s OK\n" "$From" "$Add" "$To"
+    else
+        printf "set %s add-month %s => %s *** expected %s \n" "$From" "$Add" "$To" "$Expect"
+        exit 9
+    fi
+}
+
+TestSubMonth () {
+    From="$1"
+    Add="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" sub-month "$Add")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s sub-month %s => %s OK\n" "$From" "$Add" "$To"
+    else
+        printf "set %s sub-month %s => %s *** expected %s \n" "$From" "$Add" "$To" "$Expect"
+        exit 9
+    fi
+}
+
+TestAddYear () {
+    From="$1"
+    Add="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" add-year "$Add")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s add-year %s => %s OK\n" "$From" "$Add" "$To"
+    else
+        printf "set %s add-year %s => %s *** expected %s \n" "$From" "$Add" "$To" "$Expect"
+        exit 9
+    fi
+}
+
+TestSubYear () {
+    From="$1"
+    Sub="$2"
+    Expect="$3"
+    To="$(./pldate set "$From" sub-year "$Sub")"
+    if [ "$To" = "$Expect" ]; then
+        printf "set %s sub-year %s => %s OK\n" "$From" "$Sub" "$To"
+    else
+        printf "set %s sub-year %s => %s *** expected %s \n" "$From" "$Sub" "$To" "$Expect"
+        exit 9
+    fi
+}
+
 TestNextDow () {
     From="$1"
     Dow="$2"
@@ -211,6 +263,27 @@ TestSetMday 23000201  31 23000228
 TestSetYday 17890315  -1 17891231
 TestSetYday 17890315   0 17890101
 TestSetYday 17890315 365 17891231
+
+TestAddMonth 20010131 -100 19920930
+TestAddMonth 20010131  -12 20000131
+TestAddMonth 20010131  -11 20000229
+TestAddMonth 20010131   -1 20001231
+TestAddMonth 20010131    0 20010131
+TestAddMonth 20010131    1 20010228
+TestAddMonth 20010131   11 20011231
+TestAddMonth 20010131   12 20020131
+TestAddMonth 20010131  100 20090531
+
+TestSubMonth 19920930 -100 20010130
+TestSubMonth 20001231   -1 20010131
+TestSubMonth 20010131    0 20010131
+TestSubMonth 20010228    1 20010128
+TestSubMonth 20090531  100 20010131
+
+TestAddYear  20000229 +300 23000228
+TestAddYear  20000229 +400 24000229
+TestSubYear  24001231  799 16011231
+TestSubYear  16011231 -799 24001231
 
 TestInternal 16010101 000000
 TestInternal 17001231 036523

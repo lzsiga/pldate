@@ -150,8 +150,7 @@ sub DoSetInt {
     return $int;
 }
 
-sub DoAddDays
-{
+sub DoAddDays {
     my $int=    $_[0];
     my $factor= $_[1];
     my $add=    $_[2];
@@ -168,6 +167,43 @@ sub DoAddDays
         exit 2;
     }
 
+    return $int;
+}
+
+sub DoAddMonths {
+    my $int=    $_[0];
+    my $factor= $_[1];
+    my $s_add=  $_[2];
+    my $add=    int ($s_add);
+    my $add_months= $add*$factor;
+    if ($s_add !~ /^[+-]?\d+$/ ||
+        $add_months < -9600 || $add_months > 9600) {
+        printf STDERR "DoAddMonths: bad param %s\n", $s_add;
+        exit 2;
+    }
+
+    my ($year,$mon,$mday) = InternalToYMD ($int);
+    my $tmp= $mon + $add_months;
+
+    if ($tmp >= 0) {
+        $mon = $tmp;
+        if ($mon >= 12) {
+            $year += int ($tmp/12);
+            $mon  = $mon%12;
+        }
+
+    } else {
+        $tmp= -$tmp;
+        $mon= (12-($tmp%12))%12;
+        $year -= int (($tmp+11)/12);
+    }
+
+#   printf STDERR "Debug AddMonths year=%s mon=%s mday=%s\n", $year, $mon, $mday;
+    if ($mday > MonLen ($year, $mon)) {
+        $mday= MonLen ($year, $mon);
+    }
+
+    $int= DaysBeforeDate ($year, $mon, $mday);
     return $int;
 }
 
@@ -321,6 +357,31 @@ sub main {
                  $ARGV[$i] eq 'sub-day') {
             if ($i>=$ARGC-1) { next; }
             $int= DoAddDays ($int, -1, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'add-months' ||
+                 $ARGV[$i] eq 'add-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddMonths ($int, 1, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'sub-months' ||
+                 $ARGV[$i] eq 'sub-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddMonths ($int, -1, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'add-years' ||
+                 $ARGV[$i] eq 'add-year') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddMonths ($int, 12, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'sub-years' ||
+                 $ARGV[$i] eq 'sub-year') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddMonths ($int, -12, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'sub-months' ||
+                 $ARGV[$i] eq 'sub-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoAddMonths ($int, -1, $ARGV[++$i]);
 
         } elsif ($ARGV[$i] eq 'next-dow' ||
                  $ARGV[$i] eq 'next-wday') {
