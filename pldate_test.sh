@@ -102,6 +102,19 @@ TestSetYday () {
     fi
 }
 
+TestInternal () {
+    Ext="$1"
+    Int="$2"
+    Tmp1="$(./pldate set "$Ext" printf %I)"
+    Tmp2="$(./pldate set-int "$Int" print)"
+    if [ "$Tmp2" = "$Ext" -a "$Tmp1" = "$Int" ]; then
+        printf "ext=%s int=%s OK\n" "$Ext" "$Int"
+    else
+        printf "ext=%s int=%s tmp1=%s tmp2=%s **** Fail\n" "$Ext" "$Int" "$Tmp1" "$Tmp2"
+        exit 9
+    fi
+}
+
 TestSet 16010101 16010101
 TestSet 18480315 18480315
 TestSet 19680309 19680309
@@ -154,6 +167,14 @@ TestSetMday 23000201  31 23000228
 TestSetYday 17890315  -1 17891231
 TestSetYday 17890315   0 17890101
 TestSetYday 17890315 365 17891231
+
+TestInternal 16010101 000000
+TestInternal 17001231 036523
+TestInternal 17010101 036524
+TestInternal 20001231 146096
+TestInternal 20000229 145790
+TestInternal 20000301 145791
+TestInternal 24001231 292193
 
 TestComplete 'set 19010101'                             19010101
 TestComplete 'set 19010101   add-days 365'              19020101

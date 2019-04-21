@@ -5,8 +5,10 @@
     
     It only handles dates, not times or timestamps.
     
-    It's only supported date-format is YYYYMMDD
-    
+    It's only supported date-format is YYYYMMDD (but it has a 'printf' command)
+    Its internal date-representation is number of days since 1601-01-01,
+    supported range: 0..292192 (1601-01-01..2400-12-31).
+
     Usage:
       pldate                     # just print the current date (localtime)
       pldate [command-list]      # execute the commands and print the result
@@ -16,6 +18,9 @@
                                  # (automatically performed at start)
       tomorrow                   # set the internal variable to the next day
       yesterday                  # set the internal variable to the previous day
+
+      set YYYYMMDD               # go to the specifed day
+      set-int N                  # the same with internal format (see above)
 
       add-days N                 # add N days (it can be negative too)
       sub-days N                 # subtract N days (it can be negative too)
@@ -32,7 +37,7 @@
                                  # N<0: go to the abs(N)th day of the year, counting backwards from the end
 
       print                      # print the current value as %Y%m%d
-      printf FMT                 # formatted print (use %Y,%y,%m,%d,%w,%j)
+      printf FMT                 # formatted print (use %Y,%y,%m,%d,%w,%j and %I for internal number)
     
     Complete examples:
       Next Saturday:
@@ -59,3 +64,6 @@
               prev-dow 1 \
               printf %Y%m%d- \
               next-dow 7 printf %Y%m%d
+
+      Days since a fixed day:
+         expr "$(./pldate today printf %I)" - "$(./pldate set 20010209 printf %I)"

@@ -2,8 +2,7 @@
 
 use warnings;
 use strict;
-use POSIX qw (tzset);
-use Data::Dumper;
+# use Data::Dumper;
 
 sub IsLeapYear {
     my $year= $_[0];
@@ -127,7 +126,7 @@ sub DoSet {
     my $mon=  substr ($par, 4, 2) - 1;
     my $mday= substr ($par, 6, 2) - 0;
 
-    if (($year<-300 || $year>400) ||
+    if (($year<-300 || $year>500) ||
         ($mon < 0   || $mon >11) ||
         ($mday< 1   || $mday>MonLen($year,$mon))) {
         printf STDERR "DoSet Invalid params %04d-%02d-%02d\n", 1900+$year, 1+$mon, $mday;
@@ -137,6 +136,17 @@ sub DoSet {
     my $int= DaysBeforeDate ($year, $mon, $mday);
 #   $wday= ($int+1)%7; # 0=Sunday
 #   printf STDERR "DoSet %04d-%02d-%02d => %s\n", 1900+$year, 1+$mon, $mday, $int;
+    return $int;
+}
+
+sub DoSetInt {
+    my $s_int= $_[0];
+    my $int=  int ($s_int);
+    if ($s_int !~ /^[+-]?\d+$/ ||
+        $int<0 || $int>=2922194) {
+        printf STDERR "DoSetInt: Invalid param %s\n", $s_int;
+        exit 2;
+    }
     return $int;
 }
 
@@ -247,6 +257,7 @@ sub DoPrint {
     my ($year, $yday) = InternalToYday ($int);
     my ($mon, $mday)  = YdayToMD ($year, $yday);
 
+    my $sI= sprintf ("%06d", $int);
     my $sy= sprintf ("%02d", ($year+1900)%100);
     my $sY= sprintf ("%04d", ($year+1900));
     my $sm= sprintf ("%02d", $mon+1);
@@ -254,6 +265,7 @@ sub DoPrint {
     my $sw= sprintf ("%d", ($int+1)%7);
     my $sj= sprintf ("%03d", $yday+1);
 
+    $str =~ s/%I/$sI/g;
     $str =~ s/%Y/$sY/g;
     $str =~ s/%y/$sy/g;
     $str =~ s/%m/$sm/g;
@@ -296,11 +308,17 @@ sub main {
             if ($i>=$ARGC-1) { next; }
             $int= DoSet ($ARGV[++$i]);
 
-        } elsif ($ARGV[$i] eq 'add-days') {
+        } elsif ($ARGV[$i] eq 'set-int') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetInt ($ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'add-days' ||
+                 $ARGV[$i] eq 'add-day') {
             if ($i>=$ARGC-1) { next; }
             $int= DoAddDays ($int, 1, $ARGV[++$i]);
 
-        } elsif ($ARGV[$i] eq 'sub-days') {
+        } elsif ($ARGV[$i] eq 'sub-days' ||
+                 $ARGV[$i] eq 'sub-day') {
             if ($i>=$ARGC-1) { next; }
             $int= DoAddDays ($int, -1, $ARGV[++$i]);
 
