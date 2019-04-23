@@ -60,6 +60,8 @@
 
       print                      # print the current value as %Y%m%d
       printf FMT                 # formatted print (use %Y,%y,%m,%d,%w,%j and %I for internal number)
+                                 # if the last command is a print/printf, the program doesn't
+                                 # automatically print the actual value, only a line-feed
     
     Complete examples:
       Next Saturday:
@@ -88,10 +90,9 @@
     
       The week containing the current date (eg 19681230-19690105)
         ./pldate today \
-              add-days 1 \
-              prev-dow 1 \
+              downto-wday 1 \
               printf %Y%m%d- \
-              next-dow 7 printf %Y%m%d
+              next-wday 7 printf %Y%m%d
 
       Previous year as an interval (eg 20180101-20181231)
         ./pldate today sub-year 1 set-yday 1 printf %Y%m%d- set-yday -1 print

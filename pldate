@@ -327,10 +327,12 @@ sub main {
 #
 # day of week ($int+1)%7 => 0..6 = Sun..Sat
 
-    my $fprint= 0;
+    my $fprint= 0; # Was the last command a print? 0/1 = no/yes
     my $ARGC= scalar (@ARGV);
     my $i;
     for ($i=0; $i<$ARGC; ++$i) {
+        $fprint= 0;
+
         if ($ARGV[$i] eq 'today') {
             $int= DaysBeforeDate ($year, $mon, $mday);
 
@@ -413,12 +415,15 @@ sub main {
 
         } elsif ($ARGV[$i] eq 'print') {
             DoPrint ($int, '%Y%m%d');
-            $fprint= 1;
+            $fprint= 1
 
         } elsif ($ARGV[$i] eq 'printf') {
             if ($i>=$ARGC-1) { next; }
             DoPrint ($int, $ARGV[++$i]);
-            $fprint= 1;
+            $fprint= 1
+        } else {
+            printf STDERR "pldate: *** unknow command '%s'\n", $ARGV[$i];
+            exit 2
         }
     }
 
