@@ -207,6 +207,47 @@ sub DoAddMonths {
     return $int;
 }
 
+sub DoSetMonth {
+    my $int=   $_[0];
+    my $op=    $_[1];
+    my $s_par= $_[2];
+    my $par= int ($s_par) -1;
+
+    if ($s_par !~ /^\d+$/ ||
+        ! ($par>=0 && $par<=11)) {
+        printf STDERR "DoSetMonth: bad param %s\n", $s_par;
+        exit 2;
+    }
+
+    my ($year,$mon,$mday) = InternalToYMD ($int);
+    if ($op eq 'S') {
+        $mon= $par;
+
+    } elsif ($op eq 'N') {
+        if ($par <= $mon) { ++$year; }
+        $mon= $par;
+
+    } elsif ($op eq 'U') {
+        if ($par < $mon) { ++$year; }
+        $mon= $par;
+
+    } elsif ($op eq 'P') {
+        if ($par >= $mon) { --$year; }
+        $mon= $par;
+
+    } elsif ($op eq 'D') {
+        if ($par > $mon) { --$year; }
+        $mon= $par;
+    }
+
+    if ($mday > MonLen ($year, $mon)) {
+        $mday= MonLen ($year, $mon);
+    }
+
+    $int= DaysBeforeDate ($year, $mon, $mday);
+    return $int;
+}
+
 sub DoNextDow {
     my $int=   $_[0];
     my $todow= $_[1];
@@ -412,6 +453,26 @@ sub main {
         } elsif ($ARGV[$i] eq 'set-yday') {
             if ($i>=$ARGC-1) { next; }
             $int= DoSetYday ($int, $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'set-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetMonth ($int, 'S', $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'next-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetMonth ($int, 'N', $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'prev-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetMonth ($int, 'P', $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'upto-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetMonth ($int, 'U', $ARGV[++$i]);
+
+        } elsif ($ARGV[$i] eq 'downto-month') {
+            if ($i>=$ARGC-1) { next; }
+            $int= DoSetMonth ($int, 'D', $ARGV[++$i]);
 
         } elsif ($ARGV[$i] eq 'print') {
             DoPrint ($int, '%Y%m%d');

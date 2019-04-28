@@ -28,7 +28,6 @@
       add-month[s] N             # add N months (it can be negative too)
       sub-month[s] N             # subtract N months (it can be negative too)
                                  # note: these two might change the day-of-month
-                                 # eg 2001-03-31 -1 month = 2001-02-28
 
       add-year[s] N              # add N years (it can be negative too)
       sub-year[s] N              # subtract N years (it can be negative too)
@@ -57,6 +56,14 @@
       set-yday N                 # N=1..366: go to Nth day of the year (or the last day)
                                  # N=0: same as N=1
                                  # N<0: go to the abs(N)th day of the year, counting backwards from the end
+
+      set-month N                # month-manipulation functions, N=1..12
+      add-month[s] N             # they are analogous to wday manipulation functions
+      sub-month[s] N
+      next-month N
+      prev-month N
+      upto-month N               # Note: this might change 'mday' (day-of-month)
+      downto-month N             # eg 2001-03-31 -1 month = 2001-02-28
 
       print                      # print the current value as %Y%m%d
       printf FMT                 # formatted print (use %Y,%y,%m,%d,%w,%j and %I for internal number)

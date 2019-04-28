@@ -300,6 +300,19 @@ TestComplete 'set 19010101   add-days 365   prev-dow 0' 19011229
 TestComplete 'set 19450404   set-mday   1   sub-days 1' 19450331
 TestComplete 'set 19450404   set-mday  -1   add-days 1' 19450501
 
+TestComplete 'set 20010531   set-month 12'    '20011231'
+TestComplete 'set 20010531   set-month  9'    '20010930'
+TestComplete 'set 20010531   set-month  1'    '20010131'
+TestComplete 'set 20010531   next-month 1'    '20020131'
+TestComplete 'set 20010531   next-month 5'    '20020531'
+TestComplete 'set 20010531   prev-month 1'    '20010131'
+TestComplete 'set 20010531   prev-month 1'    '20010131'
+TestComplete 'set 20010531   upto-month   5'  '20010531'
+TestComplete 'set 20010531   upto-month   4'  '20020430'
+TestComplete 'set 20010531   downto-month 5'  '20010531'
+TestComplete 'set 20010531   downto-month 6'  '20000630'
+TestComplete 'set 20010531   downto-month 12' '20001231'
+
 TestComplete 'set 19681226
               add-days 1
               prev-dow 1
