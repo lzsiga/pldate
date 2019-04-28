@@ -91,7 +91,7 @@
       First day of the next month
         ./pldate today set-mday -1 add-days 1
         ./pldate today add-month 1 set-mday 1
-
+    
       Last day of the next month
         ./pldate today add-month 1 set-mday -1
     
@@ -100,9 +100,13 @@
               downto-wday 1 \
               printf %Y%m%d- \
               next-wday 7 printf %Y%m%d
-
+    
       Previous year as an interval (eg 20180101-20181231)
         ./pldate today sub-year 1 set-yday 1 printf %Y%m%d- set-yday -1 print
-
+    
+      Current 'school-year' (September 1 - August 31):
+        ./pldate downto-month 9 set-mday 1 printf '%Y%m%d-' upto-month  8 set-mday -1 print
+        ./pldate downto-month 9 set-mday 1 printf '%Y%m%d-' add-months 11 set-mday -1 print
+    
       Days since a fixed day:
          expr "$(./pldate today printf %I)" - "$(./pldate set 20010209 printf %I)"
