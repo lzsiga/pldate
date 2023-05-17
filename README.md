@@ -110,3 +110,7 @@
     
       Days since a fixed day:
          expr "$(./pldate today printf %I)" - "$(./pldate set 20010209 printf %I)"
+
+      Set two shell-variables consistently:
+        eval $(./pldate sub-days 1 printf 'YesterdayLong=%Y-%m-%d; YesterdayShort=%Y%m%d')
+        echo "$YesterdayLong" "$YesterdayShort"
